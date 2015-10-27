@@ -1,14 +1,24 @@
-hello-samza
-===========
+# Install Yarn, Kafka, Zookeeper
+```
+$ bin/grid bootstrap
+```
 
-Hello Samza is a starter project for [Apache Samza](http://samza.apache.org/) jobs.
+# Check out the Yarn UI at http://localhost:8088
 
-Please see [Hello Samza](http://samza.apache.org/startup/hello-samza/0.9/) to get started.
+# Build the Samza jobs
+```
+mvn clean package && rm -rf deploy/samza/ && mkdir -p deploy/samza && tar -xvf ./target/hello-samza-0.9.1-dist.tar.gz -C deploy/samza/
+```
 
-### Pull requests and questions
+# Run the jobs
+```
+./deploy/samza/bin/run-job.sh --config-factory=org.apache.samza.config.factories.PropertiesConfigFactory --config-path=file://$PWD/deploy/samza/config/smurf-position-writer.properties
+```
 
-[Hello Samza](http://samza.apache.org/startup/hello-samza/0.9/) is developed as part of the [Apache Samza](http://samza.apache.org) project. Please direct questions, improvements and bug fixes there. Questions about [Hello Samza](http://samza.apache.org/startup/hello-samza/0.9/) are welcome on the [dev list](http://samza.apache.org/community/mailing-lists.html) and the [Samza JIRA](https://issues.apache.org/jira/browse/SAMZA) has a hello-samza component for filing tickets.
+```
+./deploy/samza/bin/run-job.sh --config-factory=org.apache.samza.config.factories.PropertiesConfigFactory --config-path=file://$PWD/deploy/samza/config/smurf-mood-writer.properties
+```
 
-### Contribution
-
-To start contributing on [Hello Samza](http://samza.apache.org/startup/hello-samza/0.9/) first read [Rules](http://samza.apache.org/contribute/rules.html) and [Contributor Corner](https://cwiki.apache.org/confluence/display/SAMZA/Contributor%27s+Corner). Notice that [Hello Samza](http://samza.apache.org/startup/hello-samza/0.9/) git repository does not support git pull request.
+```
+./deploy/samza/bin/run-job.sh --config-factory=org.apache.samza.config.factories.PropertiesConfigFactory --config-path=file://$PWD/deploy/samza/config/smurf-profiler.properties
+```
