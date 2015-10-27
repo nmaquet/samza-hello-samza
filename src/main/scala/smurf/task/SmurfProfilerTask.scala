@@ -46,6 +46,7 @@ class SmurfProfilerTask extends StreamTask with InitableTask with Logging {
     val newY: java.lang.Integer = y + message.get("deltaY").asInstanceOf[java.lang.Integer]
     smurf.put("x", newX)
     smurf.put("y", newY)
+    smurf.put("smurfId", key)
     store.put(key, smurf)
   }
 
@@ -56,6 +57,7 @@ class SmurfProfilerTask extends StreamTask with InitableTask with Logging {
     val current: Integer = Option(smurf.get(mood).asInstanceOf[java.lang.Integer]).getOrElse(0)
     val newValue: Integer = current + delta
     smurf.put(mood, newValue)
+    smurf.put("smurfId", key)
     store.put(key, smurf)
   }
 }

@@ -8,7 +8,7 @@ class SmurfPositionConsumer(messagesPerBatch: Int, threadCount: Int, brokerSleep
   val consumerPrefix: String = "SmurfPositionConsumer-"
 
   def getKey(): Integer = {
-    Math.abs(random.nextInt()) % 100
+    Math.abs(random.nextInt()) % 10
   }
 
   def getMessage(key: Integer): java.util.Map[String, Object] = {
