@@ -1,6 +1,7 @@
 package smurf.task
 
 import org.apache.samza.config.Config
+import org.apache.samza.metrics.Counter
 import org.apache.samza.storage.kv.KeyValueStore
 import org.apache.samza.system.{IncomingMessageEnvelope, OutgoingMessageEnvelope, SystemStream}
 import org.apache.samza.task.{InitableTask, MessageCollector, StreamTask, TaskContext, TaskCoordinator}
@@ -10,10 +11,14 @@ class SmurfProfilerTask extends StreamTask with InitableTask with Logging {
 
   var outputSystemStream: Option[SystemStream] = None
   var store: KeyValueStore[Integer, java.util.Map[String, Object]] = _
+  var processedPositionUpdates: Counter = null
+  var processedMoodUpdates: Counter = null
 
   def init(config: Config, context: TaskContext) {
     outputSystemStream = Option(config.get("task.outputs", null)).map(Util.getSystemStreamFromNames)
     store = context.getStore("smurf-store").asInstanceOf[KeyValueStore[Integer, java.util.Map[String, Object]]]
+    processedPositionUpdates = context.getMetricsRegistry.newCounter(getClass.getName, "processed-position-updates")
+    processedMoodUpdates = context.getMetricsRegistry.newCounter(getClass.getName, "processed-mood-updates")
   }
 
   override def process(envelope: IncomingMessageEnvelope, collector: MessageCollector, coordinator: TaskCoordinator): Unit = {
@@ -31,8 +36,8 @@ class SmurfProfilerTask extends StreamTask with InitableTask with Logging {
       val key = envelope.getKey.asInstanceOf[Integer]
       val message = envelope.getMessage.asInstanceOf[java.util.Map[String, Object]]
       envelope.getSystemStreamPartition.getStream match {
-        case "smurf-position" => processPosition(key, message, collector)
-        case "smurf-mood" => processMood(key, message, collector)
+        case "smurf-position" => processPosition(key, message, collector) ; processedPositionUpdates.inc()
+        case "smurf-mood" => processMood(key, message, collector) ; processedMoodUpdates.inc()
       }
       collector.send(new OutgoingMessageEnvelope(outputSystemStream.get, key, store.get(key)))
     }
