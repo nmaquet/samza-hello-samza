@@ -56,6 +56,11 @@
       <outputDirectory>config</outputDirectory>
       <filtered>true</filtered>
     </file>
+    <file>
+      <source>${basedir}/src/main/config/string-smurfer-partitioned.properties</source>
+      <outputDirectory>config</outputDirectory>
+      <filtered>true</filtered>
+    </file>
   </files>
   <dependencySets>
     <dependencySet>
