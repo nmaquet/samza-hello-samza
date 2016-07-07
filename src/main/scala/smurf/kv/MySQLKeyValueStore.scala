@@ -20,6 +20,8 @@ class MySQLKeyValueStore(
 
   val conn = sql.DriverManager.getConnection(s"jdbc:mysql://$url/$database", user, password)
 
+  conn.setAutoCommit(false) // only use MyISAM tables !
+
   override def range(from: Array[Byte], to: Array[Byte]): KeyValueIterator[Array[Byte], Array[Byte]] = {
     val statement = conn.prepareStatement(s"SELECT `key`, `value` FROM `$table` WHERE `key` >= ? AND `key` < ?")
     statement.setBytes(1, from)
@@ -93,7 +95,14 @@ class MySQLKeyValueStore(
   }
 
   override def putAll(list: util.List[Entry[Array[Byte], Array[Byte]]]): Unit = {
-    // TODO: optimize this
-    list.asScala.foreach((e) => put(e.getKey, e.getValue))
+    val statement = conn.prepareStatement(s"INSERT INTO `$table` VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?")
+    list.asScala.foreach((e) => {
+      statement.setBytes(1, e.getKey)
+      statement.setBytes(2, e.getValue)
+      statement.setBytes(3, e.getValue)
+      statement.addBatch()
+    })
+    statement.executeBatch()
+    statement.close()
   }
 }
