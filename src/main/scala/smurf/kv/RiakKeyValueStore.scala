@@ -77,4 +77,11 @@ class RiakKeyValueStore(
   }
 }
 
+object TestApp extends App {
+  val store = new RiakKeyValueStore("localhost", 32769, "profile")
+  // store.put("hello".getBytes, "world1".getBytes())
+  println(new String(store.get("hello".getBytes)))
+  println("done")
+  store.close()
+}
 

@@ -33,6 +33,7 @@
   </appender>
   <root>
     <priority value="info" />
+    <appender-ref ref="RollingAppender"/>
     <appender-ref ref="jmx" />
   </root>
 </log4j:configuration>
