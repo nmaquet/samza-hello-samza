@@ -23,7 +23,7 @@ AbstractSmurfMetricConsumer(messagesPerBatch, threadCount, brokerSleepMs) {
   val consumerPrefix: String = "SmurfMoodConsumer-"
 
   def getKey(): Integer = {
-    Math.abs(random.nextInt()) % 10000000
+    Math.abs(random.nextInt()) % 20000
   }
 
   def getMessage(key: Integer): java.util.Map[String, Object] = {
