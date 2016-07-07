@@ -94,7 +94,13 @@ class MySQLKeyValueStore(
     conn.close()
   }
 
+  var counter = 0
+
   override def putAll(list: util.List[Entry[Array[Byte], Array[Byte]]]): Unit = {
+    if (counter < 10) {
+      counter += 1
+      info(s"putAll of ${list.size()} elements")
+    }
     val statement = conn.prepareStatement(s"INSERT INTO `$table` VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?")
     list.asScala.foreach((e) => {
       statement.setBytes(1, e.getKey)

@@ -57,6 +57,11 @@
       <filtered>true</filtered>
     </file>
     <file>
+      <source>${basedir}/src/main/config/smurf-profiler-riak.properties</source>
+      <outputDirectory>config</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+    <file>
       <source>${basedir}/src/main/config/string-smurfer.properties</source>
       <outputDirectory>config</outputDirectory>
       <filtered>true</filtered>

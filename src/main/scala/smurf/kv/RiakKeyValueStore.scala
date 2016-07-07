@@ -1,6 +1,6 @@
 package smurf.kv
 
-import java.{util}
+import java.util
 
 import com.basho.riak.client.api.RiakClient
 import com.basho.riak.client.api.commands.kv.{DeleteValue, FetchValue, StoreValue}
@@ -22,6 +22,8 @@ class RiakKeyValueStore(
     .withRemotePort(port)
     .build()
 
+  info("Connecting to Riak cluster...")
+
   val cluster = new RiakCluster.Builder(node).build()
   cluster.start()
   val client = new RiakClient(cluster)
@@ -35,7 +37,11 @@ class RiakKeyValueStore(
     val location = new Location(bucket, BinaryValue.create(k))
     val fetchOp = new FetchValue.Builder(location).build()
     val fetchedObject = client.execute(fetchOp).getValue(classOf[RiakObject])
-    fetchedObject.getValue.getValue
+    if (fetchedObject != null) {
+      fetchedObject.getValue.getValue
+    } else {
+      null
+    }
   }
 
   override def put(k: Array[Byte], v: Array[Byte]): Unit = {
