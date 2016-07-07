@@ -16,8 +16,7 @@ class MySQLKeyValueStorageEngineFactory [K, V] extends BaseKeyValueStorageEngine
                           changeLogSystemStreamPartition: SystemStreamPartition,
                           containerContext: SamzaContainerContext): KeyValueStore[Array[Byte], Array[Byte]] = {
     val storageConfig = containerContext.config.subset("stores." + storeName + ".", true)
-    val host = storageConfig.get("mysql.host", "localhost")
-    val port = storageConfig.getInt("mysql.port", 3306)
+    val url = storageConfig.get("mysql.url", "localhost:3306")
     val user = storageConfig.get("mysql.user", "root")
     val password = storageConfig.get("mysql.password", "")
     val database = storageConfig.get("mysql.database")
@@ -28,8 +27,7 @@ class MySQLKeyValueStorageEngineFactory [K, V] extends BaseKeyValueStorageEngine
     }
 
     new MySQLKeyValueStore(
-      host,
-      port,
+      url,
       user,
       password,
       database,
