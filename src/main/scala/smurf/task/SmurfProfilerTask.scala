@@ -4,15 +4,16 @@ import org.apache.samza.config.Config
 import org.apache.samza.metrics.Counter
 import org.apache.samza.storage.kv.KeyValueStore
 import org.apache.samza.system.{IncomingMessageEnvelope, OutgoingMessageEnvelope, SystemStream}
-import org.apache.samza.task.{InitableTask, MessageCollector, StreamTask, TaskContext, TaskCoordinator}
+import org.apache.samza.task.{InitableTask, WindowableTask, MessageCollector, StreamTask, TaskContext, TaskCoordinator}
 import org.apache.samza.util.{Logging, Util}
 
-class SmurfProfilerTask extends StreamTask with InitableTask with Logging {
+class SmurfProfilerTask extends StreamTask with InitableTask with WindowableTask with Logging {
 
   var outputSystemStream: Option[SystemStream] = None
   var store: KeyValueStore[Integer, java.util.Map[String, Object]] = _
   var processedPositionUpdates: Counter = null
   var processedMoodUpdates: Counter = null
+  var processCount = 0
 
   def init(config: Config, context: TaskContext) {
     info("starting init...")
@@ -24,15 +25,8 @@ class SmurfProfilerTask extends StreamTask with InitableTask with Logging {
   }
 
   override def process(envelope: IncomingMessageEnvelope, collector: MessageCollector, coordinator: TaskCoordinator): Unit = {
-//    try {
-    info("processing envelope")
     processEnvelope(envelope, collector, coordinator)
-    info("done processing envelope")
-//    }
-//    catch {
-//      case e: Exception =>
-//        error(e.getMessage)
-//    }
+    processCount += 1
   }
 
   private def processEnvelope(envelope: IncomingMessageEnvelope, collector: MessageCollector, coordinator: TaskCoordinator): Unit = {
@@ -68,5 +62,10 @@ class SmurfProfilerTask extends StreamTask with InitableTask with Logging {
     smurf.put(mood, newValue)
     smurf.put("smurfId", key)
     store.put(key, smurf)
+  }
+
+  override def window(messageCollector: MessageCollector, taskCoordinator: TaskCoordinator): Unit = {
+    info(s"processed $processCount in 10s (${processCount / 10.0} / s)")
+    processCount = 0
   }
 }

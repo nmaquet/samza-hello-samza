@@ -1,6 +1,6 @@
 package smurf.system
 
-class SmurfMoodConsumer(messagesPerBatch: Int, threadCount: Int, brokerSleepMs: Int) extends
+class SmurfMoodConsumer (messagesPerBatch: Int, threadCount: Int, brokerSleepMs: Int) extends
 AbstractSmurfMetricConsumer(messagesPerBatch, threadCount, brokerSleepMs) {
 
   val MOODS = List(
@@ -23,7 +23,7 @@ AbstractSmurfMetricConsumer(messagesPerBatch, threadCount, brokerSleepMs) {
   val consumerPrefix: String = "SmurfMoodConsumer-"
 
   def getKey(): Integer = {
-    Math.abs(random.nextInt()) % 10
+    Math.abs(random.nextInt()) % 10000000
   }
 
   def getMessage(key: Integer): java.util.Map[String, Object] = {
