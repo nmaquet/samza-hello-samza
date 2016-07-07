@@ -101,7 +101,7 @@ class CouchbaseKeyValueStore(url: String, bucketName: String) extends KeyValueSt
         .flatMap(new Func1[JsonDocument, Observable[JsonDocument]]() {
 
           def call(docToInsert: JsonDocument): Observable[JsonDocument] = {
-            bucket.async().insert(docToInsert)
+            bucket.async().upsert(docToInsert)
           }
         })
         .last()
