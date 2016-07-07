@@ -14,11 +14,14 @@ class MySQLKeyValueStore(
     database: String,
     table: String) extends KeyValueStore[Array[Byte], Array[Byte]] with Logging {
 
+  info("Instantiating connection to MySQL...")
+
   Class.forName("com.mysql.jdbc.Driver")
 
   val conn = sql.DriverManager.getConnection(s"jdbc:mysql://$url/$database", user, password)
 
   override def range(from: Array[Byte], to: Array[Byte]): KeyValueIterator[Array[Byte], Array[Byte]] = {
+    info("range")
     val statement = conn.prepareStatement(s"SELECT `key`, `value` FROM `$table` WHERE `key` >= ? AND `key` < ?")
     statement.setBytes(1, from)
     statement.setBytes(2, to)
@@ -37,20 +40,28 @@ class MySQLKeyValueStore(
   }
 
   override def get(k: Array[Byte]): Array[Byte] = {
+    info("get")
     val statement = conn.prepareStatement(s"SELECT `value` FROM `$table` WHERE `key` = ?")
     statement.setBytes(1, k)
     val rs = statement.executeQuery()
-    rs.getBytes(1)
+    if (rs.next()) {
+      rs.getBytes(1)
+    } else {
+      null
+    }
   }
 
   override def put(k: Array[Byte], v: Array[Byte]): Unit = {
-    val statement = conn.prepareStatement(s"INSERT INTO `$table` VALUES (?, ?)")
+    info("put")
+    val statement = conn.prepareStatement(s"INSERT INTO `$table` VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?")
     statement.setBytes(1, k)
     statement.setBytes(2, v)
+    statement.setBytes(3, v)
     statement.executeUpdate()
   }
 
   override def all(): KeyValueIterator[Array[Byte], Array[Byte]] = {
+    info("all")
     val statement = conn.prepareStatement(s"SELECT `key`, `value` FROM `$table`")
     val rs = statement.executeQuery()
 
@@ -67,20 +78,24 @@ class MySQLKeyValueStore(
   }
 
   override def flush(): Unit = {
+    info("flush")
     // no-op
   }
 
   override def delete(k: Array[Byte]): Unit = {
+    info("delete")
     val statement = conn.prepareStatement(s"DELETE FROM `$table` WHERE `key` = ?")
     statement.setBytes(1, k)
     statement.executeUpdate()
   }
 
   override def close(): Unit = {
+    info("close")
     conn.close()
   }
 
   override def putAll(list: util.List[Entry[Array[Byte], Array[Byte]]]): Unit = {
+    info("putAll")
     // TODO: optimize this
     list.asScala.foreach((e) => put(e.getKey, e.getValue))
   }

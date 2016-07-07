@@ -52,6 +52,11 @@
       <filtered>true</filtered>
     </file>
     <file>
+      <source>${basedir}/src/main/config/smurf-profiler-mysql.properties</source>
+      <outputDirectory>config</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+    <file>
       <source>${basedir}/src/main/config/string-smurfer.properties</source>
       <outputDirectory>config</outputDirectory>
       <filtered>true</filtered>

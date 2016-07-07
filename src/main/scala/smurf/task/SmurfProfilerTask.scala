@@ -15,20 +15,24 @@ class SmurfProfilerTask extends StreamTask with InitableTask with Logging {
   var processedMoodUpdates: Counter = null
 
   def init(config: Config, context: TaskContext) {
+    info("starting init...")
     outputSystemStream = Option(config.get("task.outputs", null)).map(Util.getSystemStreamFromNames)
     store = context.getStore("smurf-store").asInstanceOf[KeyValueStore[Integer, java.util.Map[String, Object]]]
     processedPositionUpdates = context.getMetricsRegistry.newCounter(getClass.getName, "processed-position-updates")
     processedMoodUpdates = context.getMetricsRegistry.newCounter(getClass.getName, "processed-mood-updates")
+    info("init done")
   }
 
   override def process(envelope: IncomingMessageEnvelope, collector: MessageCollector, coordinator: TaskCoordinator): Unit = {
-    try {
-      processEnvelope(envelope, collector, coordinator)
-    }
-    catch {
-      case e: Exception =>
-        println(e.getMessage)
-    }
+//    try {
+    info("processing envelope")
+    processEnvelope(envelope, collector, coordinator)
+    info("done processing envelope")
+//    }
+//    catch {
+//      case e: Exception =>
+//        error(e.getMessage)
+//    }
   }
 
   private def processEnvelope(envelope: IncomingMessageEnvelope, collector: MessageCollector, coordinator: TaskCoordinator): Unit = {
