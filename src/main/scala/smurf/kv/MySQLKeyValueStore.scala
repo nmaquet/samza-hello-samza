@@ -43,8 +43,11 @@ class MySQLKeyValueStore(
     statement.setBytes(1, k)
     val rs = statement.executeQuery()
     if (rs.next()) {
-      rs.getBytes(1)
+      val result = rs.getBytes(1)
+      statement.close()
+      result
     } else {
+      statement.close()
       null
     }
   }
@@ -55,6 +58,7 @@ class MySQLKeyValueStore(
     statement.setBytes(2, v)
     statement.setBytes(3, v)
     statement.executeUpdate()
+    statement.close()
   }
 
   override def all(): KeyValueIterator[Array[Byte], Array[Byte]] = {
@@ -81,6 +85,7 @@ class MySQLKeyValueStore(
     val statement = conn.prepareStatement(s"DELETE FROM `$table` WHERE `key` = ?")
     statement.setBytes(1, k)
     statement.executeUpdate()
+    statement.close()
   }
 
   override def close(): Unit = {
