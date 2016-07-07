@@ -18,8 +18,8 @@ class CouchbaseKeyValueStore(url: String, bucketName: String) extends KeyValueSt
 
   override def range(from: Array[Byte], to: Array[Byte]): KeyValueIterator[Array[Byte], Array[Byte]] = {
 
-    val statement = select("key", "value").from(i(bucketName)).where(
-      x("key").gte(x("$startKey")).and(x("key").lt(x("$endKey"))))
+    val statement = select("`key`", "`value`").from(i(bucketName)).where(
+      x("`key`").gte(x("$startKey")).and(x("`key`").lt(x("$endKey"))))
     val placeholderValues = JsonObject.create().put("startKey", new String(from)).put("endKey", new String(to))
     val query = N1qlQuery.parameterized(statement, placeholderValues)
     val iter = bucket.query(query).iterator()
@@ -33,7 +33,6 @@ class CouchbaseKeyValueStore(url: String, bucketName: String) extends KeyValueSt
         val doc = iter.next().value()
         val key = doc.getString("key")
         val value = doc.getString("value")
-        // doc.
         new Entry(key.getBytes("UTF-8"), value.getBytes("UTF-8"))
       }
       override def hasNext: Boolean = iter.hasNext
@@ -46,12 +45,12 @@ class CouchbaseKeyValueStore(url: String, bucketName: String) extends KeyValueSt
   }
 
   override def put(k: Array[Byte], v: Array[Byte]): Unit = {
-    val content = JsonObject.create().put(new String(k), new String(v))
+    val content = JsonObject.create().put("key", new String(k)).put("value", new String(v))
     bucket.upsert(JsonDocument.create(new String(k), content))
   }
 
   override def all(): KeyValueIterator[Array[Byte], Array[Byte]] = {
-    val statement = select("key", "value").from(i(bucketName))
+    val statement = select("`key`", "`value`").from(i(bucketName))
     val query = N1qlQuery.simple(statement)
     val iter = bucket.query(query).iterator()
 
