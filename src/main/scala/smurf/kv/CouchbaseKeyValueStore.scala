@@ -41,7 +41,11 @@ class CouchbaseKeyValueStore(url: String, bucketName: String) extends KeyValueSt
 
   override def get(k: Array[Byte]): Array[Byte] = {
     val v = bucket.get(new String(k))
-    v.content().getString("value").getBytes("UTF-8")
+    if (v != null) {
+      v.content().getString("value").getBytes("UTF-8")
+    } else {
+      null
+    }
   }
 
   override def put(k: Array[Byte], v: Array[Byte]): Unit = {
