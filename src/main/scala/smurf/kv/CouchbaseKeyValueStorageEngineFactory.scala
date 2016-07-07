@@ -17,7 +17,7 @@ class CouchbaseKeyValueStorageEngineFactory [K, V] extends BaseKeyValueStorageEn
                           containerContext: SamzaContainerContext): KeyValueStore[Array[Byte], Array[Byte]] = {
     val storageConfig = containerContext.config.subset("stores." + storeName + ".", true)
     val url = storageConfig.get("couchbase.url", "localhost")
-    val bucket = storageConfig.get("couchbase.bucket", "profile")
+    val bucket = storageConfig.get("couchbase.bucket")
 
     if (bucket == null) {
       throw new Exception("missing keys: stores." + storeName + ".couchbase.{bucket}")
