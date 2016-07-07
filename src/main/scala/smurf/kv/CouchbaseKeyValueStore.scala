@@ -90,21 +90,23 @@ class CouchbaseKeyValueStore(url: String, bucketName: String) extends KeyValueSt
   }
 
   override def putAll(list: util.List[Entry[Array[Byte], Array[Byte]]]): Unit = {
-    val docs = list.asScala.map(entry => {
-      val content = JsonObject.create().put("key", new String(entry.getKey)).put("value", new String(entry.getValue))
-      JsonDocument.create(new String(entry.getKey), content)
-    })
-
-    Observable
-      .from(docs.asJava)
-      .flatMap(new Func1[JsonDocument, Observable[JsonDocument]]() {
-
-        def call(docToInsert: JsonDocument): Observable[JsonDocument] = {
-          bucket.async().insert(docToInsert)
-        }
+    if (!list.isEmpty) {
+      val docs = list.asScala.map(entry => {
+        val content = JsonObject.create().put("key", new String(entry.getKey)).put("value", new String(entry.getValue))
+        JsonDocument.create(new String(entry.getKey), content)
       })
-      .last()
-      .toBlocking()
-      .single()
+
+      Observable
+        .from(docs.asJava)
+        .flatMap(new Func1[JsonDocument, Observable[JsonDocument]]() {
+
+          def call(docToInsert: JsonDocument): Observable[JsonDocument] = {
+            bucket.async().insert(docToInsert)
+          }
+        })
+        .last()
+        .toBlocking()
+        .single()
+    }
   }
 }
